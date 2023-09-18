@@ -21,9 +21,9 @@
 <script>
 export default {
   mounted() {
-    this.$store.dispatch('fetchLanguages')
+    this.$store.dispatch("fetchLanguages");
   },
-}
+};
 </script>
 
 <style lang="css" scoped>

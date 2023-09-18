@@ -1,7 +1,14 @@
 <template lang="html">
   <div class="books">
     <div class="title">
-      {{ $route.params.lang + ' books' }}
+      {{ $route.params.lang + " books" }}
+    </div>
+    <input type="text" v-model="input" placeholder="Search books..." />
+    <div class="item book" v-for="book in this.$store.state.books" :key="book">
+      <p>{{ book }}</p>
+    </div>
+    <div class="item error" v-if="input">
+      <p>No results found!</p>
     </div>
     <div class="books-cards">
       <a
@@ -36,19 +43,19 @@
 <script>
 export default {
   mounted() {
-    const lang = this.$route.params.lang
-    if (lang === 'all') {
-      this.$store.dispatch('fetchBooks')
+    const lang = this.$route.params.lang;
+    if (lang === "all") {
+      this.$store.dispatch("fetchBooks");
     } else {
-      this.$store.dispatch('fetchBooks', lang)
+      this.$store.dispatch("fetchBooks", lang);
     }
   },
   data() {
     return {
       lang: this.$route.params.lang,
-    }
+    };
   },
-}
+};
 </script>
 
 <style lang="css" scoped>
