@@ -16,7 +16,7 @@ public class DFA {
         return table;
     }
 
-    public DFA rename(DFA dfa) {
+    public DFA mergeStates(DFA dfa) {
         Map<Set<Integer>,Integer> renamedStates = new HashMap<>(); //key: old id, value: new id
         int id=-1;
         //create the corrisponding table
@@ -43,6 +43,51 @@ public class DFA {
 
         return dfa;
     }
+
+
+    public DFA deleteUnreachableStates(DFA dfa) {
+        // Unreachable states are the states that are not reachable from the initial state of the DFA, for any input string. These states can be removed.
+
+        Set<Set<Integer>> reachableStates = findReachableStates(dfa);
+
+        // Create a new DFA with only the reachable states
+        DFA newDFA = new DFA();
+        for (DFAState state : dfa.getTable()) {
+            if (reachableStates.contains(state.getState())) {
+                newDFA.addState(state);
+            }
+        }
+
+        return newDFA;
+    }
+
+    private Set<Set<Integer>> findReachableStates(DFA dfa) {
+        Set<Set<Integer>> reachableStates = new HashSet<>();
+        Set<Set<Integer>> visited = new HashSet<>();
+        Queue<DFAState> queue = new LinkedList<>();
+
+        // Start with the initial state
+        DFAState startingState = dfa.getStartingState();
+        reachableStates.add(startingState.getState());
+        visited.add(startingState.getState());
+        queue.offer(startingState);
+
+        while (!queue.isEmpty()) {
+            DFAState currentState = queue.poll();
+            for (Character symbol : currentState.getTransitions().keySet()) {
+                Set<Integer> nextState = currentState.getTransitions().get(symbol);
+                if (!visited.contains(nextState)) {
+                    reachableStates.add(nextState);
+                    visited.add(nextState);
+                    queue.offer(dfa.getDFAStatebyId(nextState));
+                }
+            }
+        }
+
+        return reachableStates;
+    }
+
+
     public DFAState getStartingState() {
         for (DFAState state : table) {
             if (state.isStartingState()) {
@@ -56,6 +101,23 @@ public class DFA {
         table.add(dfaState);
     }
 
+public DFAState getDFAStatebyId(Integer id){
+    for (DFAState state : table) {
+        if (state.getState().contains(id)) {
+            return state;
+        }
+    }
+    return null;
+}
+
+    public DFAState getDFAStatebyId(Set<Integer> id){
+        for (DFAState state : table) {
+                if (state.getState().equals(id)) {
+                    return state;
+                }
+        }
+        return null;
+    }
 
     @Override
     public String toString() {

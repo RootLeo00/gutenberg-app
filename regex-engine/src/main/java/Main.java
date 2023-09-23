@@ -3,7 +3,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] arg) {
-        System.out.println("Welcome to Bogota, Mr. Thomas Anderson.");
+        System.out.println("Welcome to RegEx Automa");
         //REGEX
         RegEx regEx;
         if (arg.length!=0) {
@@ -64,13 +64,17 @@ public class Main {
             NDFAtoDFAConverter converter = new NDFAtoDFAConverter();
             DFA dfa = converter.convert(ndfa);
             System.out.println("  >> DFA: \n"+dfa.toString()+"\n");
-            dfa = dfa.rename(dfa);
-            System.out.println("  >> RENAMED DFA: \n"+dfa.toString()+"\n");
+            System.out.println("  >> Minimize DFA...");
+            dfa = dfa.mergeStates(dfa);
+            System.out.println("  >> DFA with merged states: \n"+dfa.toString()+"\n");
+            dfa= dfa.deleteUnreachableStates(dfa);
+            System.out.println("  >> DFA without unreachable states: \n"+dfa.toString()+"\n");
             System.out.println("  >> ...");
             System.out.println("  >> DFA completed.");
 
         }
         System.out.println("Author @RootLeo.");
+        System.out.println("Code available at: https://github.com/RootLeo00/gutenberg-app/tree/master/regex-engine");
     }
 
 }
