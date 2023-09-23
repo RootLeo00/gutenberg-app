@@ -79,9 +79,6 @@ public class NDFA {
     }
 
     public void renameStates(NFAState currentState, Set<NFAState> visited) {
-        //Set<NFAState> visited = new HashSet<>();
-        Queue<NFAState> queue = new LinkedList<>();
-
             // Check if the state has already been visited
         if (visited.contains(currentState)) {
             return; // Avoid renaming already visited states
@@ -107,5 +104,49 @@ public class NDFA {
 
     private static int getNextStateId() {
         return nextStateId++;
+    }
+
+    public NFAState getStateById(int id) {
+        for (NFAState state : getSetState()) {
+            if (state.getId() == id) {
+                return state;
+            }
+        }
+        return null; // Return null if no state with the specified ID is found
+    }
+
+    public Set<NFAState> getSetState(){
+        Set<NFAState> result = new HashSet<>();
+        Set<NFAState> visited = new HashSet<>();
+        Queue<NFAState> queue = new LinkedList<>();
+        queue.offer(startState);
+
+        while (!queue.isEmpty()) {
+            NFAState currentState = queue.poll();
+            // Check if the state has been visited
+            if (visited.contains(currentState)) {
+                continue;
+            }
+            visited.add(currentState);
+            //add to result set
+            result.add(currentState);
+            // Epsilon transitions
+            for (NFAState epsilonState : currentState.getEpsilonTransitions()) {
+                if (!visited.contains(epsilonState)) {
+                    queue.offer(epsilonState);
+                }
+            }
+
+            // Transitions on symbols
+            for (Map.Entry<Character, Set<NFAState>> entry : currentState.getTransitions().entrySet()) {
+                Set<NFAState> symbolStates = entry.getValue();
+                for (NFAState symbolState : symbolStates) {
+                    if (!visited.contains(symbolState)) {
+                        queue.offer(symbolState);
+                    }
+                }
+            }
+        }
+        return result;
     }
 }

@@ -1,3 +1,4 @@
+import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
@@ -40,15 +41,12 @@ public class Main {
         System.out.println("  >> ...");
         System.out.println("  >> Parsing completed.");
 
-        //print leaves from last node
-/*        System.out.println("  >> Printing leaves from last node...");
-        printLeavesFromLastToRoot(regexTree);*/
-
+        NDFA ndfa = null;
         if(regexTree != null) {
             System.out.println("  >> Converting to NDFA...");
             RegExToNFAConverter converter = new RegExToNFAConverter();
             try{
-                NDFA ndfa = converter.convert(regexTree);
+                ndfa = converter.convert(regexTree);
                 System.out.println("  >> NDFA: \n"+ndfa.toString()+"\n");
 
                 ndfa = ndfa.rename(ndfa);
@@ -61,28 +59,18 @@ public class Main {
             System.out.println("  >> NDFA completed.");
 
         }
-        System.out.println("Goodbye Mr. Anderson.");
-    }
+        if(ndfa!=null){
+            System.out.println("  >> Converting to DFA...");
+            NDFAtoDFAConverter converter = new NDFAtoDFAConverter();
+            DFA dfa = converter.convert(ndfa);
+            System.out.println("  >> DFA: \n"+dfa.toString()+"\n");
+            dfa = dfa.rename(dfa);
+            System.out.println("  >> RENAMED DFA: \n"+dfa.toString()+"\n");
+            System.out.println("  >> ...");
+            System.out.println("  >> DFA completed.");
 
-    public static void printLeavesFromLastToRoot(RegExTree regexTree) {
-        if (regexTree == null) return;
-        System.out.print(regexTree.toString() + " ");
-        System.out.print(regexTree.root + " ");
-        System.out.print(regexTree.subTrees.size() + "\n");
-
-
-        // Check if it's a leaf node (no children)
-        if (regexTree.subTrees.isEmpty()) {
-            System.out.print("leaf: "+ regexTree.toString() + " ");
-            return;
         }
-        // Traverse the right subtree (last leaf)
-        if(regexTree.subTrees.size() > 1) {
-            printLeavesFromLastToRoot(regexTree.subTrees.get(1));
-        }
-
-        // Traverse the left subtree (move up towards the root)
-        printLeavesFromLastToRoot(regexTree.subTrees.get(0));
+        System.out.println("Author @RootLeo.");
     }
 
 }
