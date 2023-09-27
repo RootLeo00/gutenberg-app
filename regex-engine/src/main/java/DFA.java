@@ -46,6 +46,7 @@ public class DFA {
 
 
     public DFA deleteUnreachableStates(DFA dfa) {
+        //test with: (a*|abc)
         // Unreachable states are the states that are not reachable from the initial state of the DFA, for any input string. These states can be removed.
 
         Set<Set<Integer>> reachableStates = findReachableStates(dfa);
