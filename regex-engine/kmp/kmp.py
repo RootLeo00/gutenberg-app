@@ -1,10 +1,12 @@
+from colorama import Fore, Style
+import sys
+
 # Python program for KMP Algorithm
 def KMPSearch(pattern, txt):
 	M = len(pattern)
 	N = len(txt)
+	matching_indexes = []
 
-	# create lps[] that will hold the longest prefix suffix
-	# values for patterntern
 	
 	j = 0 # index for pattern[]
 
@@ -19,7 +21,8 @@ def KMPSearch(pattern, txt):
 			j += 1
 
 		if j == M:
-			print ("Found pattern at index", str(i-j))
+			# print ("Found pattern at index", str(i-j))
+			matching_indexes.append(i-j)
 			j = lps[j-1]
 
 		# mismatch after j matches
@@ -30,16 +33,15 @@ def KMPSearch(pattern, txt):
 				j = lps[j-1]
 			else:
 				i += 1
+	return matching_indexes
 
 def computeLPSArray(pattern, M):
 	len = 0 # length of the previous longest prefix suffix
 	lps = [0]*M
 
- 
 	i = 1
  
     # the loop calculates lps[i] for i = 1 to M-1
-	# agtagtc
 	while i < M:
 		if pattern[i]== pattern[len]:
 			len += 1
@@ -73,13 +75,73 @@ def computeCarryOverArray(pattern, M, lps):
 			lps[i]=lps[i]
 	return lps
 
+def print_color_matched_words(text, matched_indices, len_pattern):
+	colored_text = ""
+	current_index = 0
 
-#test
-txt = "ABABDABACDABABCABAB"
-pattern = ["ABABCABAB", "agtagtc"]
+	for i in matched_indices:
+		# Add the uncolored part of the text before the match
+		colored_text += text[current_index:i]
+		print(text[current_index:i], end="")
 
-lps=computeLPSArray("mamamia", len("mamamia"))
-print("lps", lps)
-lps=computeCarryOverArray("mamamia", len("mamamia"), lps)
-print("carryover", lps)
-KMPSearch(pattern[0], txt)
+		# Add the colored part (match)
+		colored_text += f"{Fore.RED}{text[i:i+len_pattern]}{Style.RESET_ALL}"
+		print(f"{Fore.RED}{text[i:i+len_pattern]}{Style.RESET_ALL}", end="")
+
+		# Update the current index
+		current_index = i + len_pattern
+
+    # Add the remaining uncolored part of the text
+	colored_text += text[current_index:]
+	print(text[current_index:], end="\n")
+
+	return colored_text
+
+
+def debug():
+	txt = open("../input/book-about-babylone.txt", "r").read()
+	lines=[line for line in txt.split("\n")]
+	pattern = "Gutenberg"
+
+	lps=computeLPSArray(pattern, len(pattern))
+	print("lps", lps)
+	lps=computeCarryOverArray(pattern, len(pattern), lps)
+	print("carryover", lps)
+
+	matching_indices=[]
+	try:
+		file= open("../output/output_kmp.txt", "w")
+		for l in lines:
+			matched_index= KMPSearch(pattern, l)
+			# write on ouput file
+			file.write(print_color_matched_words(l, matched_index, len(pattern)))
+			matching_indices+=matched_index
+	except Exception as e:
+		print(f"Error: {e}")
+
+    # Print the matched indices
+	print("Matching indices:", matching_indices)
+
+
+def main():
+	print("---------KMP SEARCH with args: ", sys.argv[1:], "-----------")
+	filename=sys.argv[1]
+	pattern=sys.argv[2]
+	try:
+		txt = open(filename, "r").read()
+		lines=[line for line in txt.split("\n")]
+
+		lps=computeLPSArray(pattern, len(pattern))
+		lps=computeCarryOverArray(pattern, len(pattern), lps)
+
+		for l in lines:
+			matched_index= KMPSearch(pattern, l)
+			print_color_matched_words(l, matched_index, len(pattern))
+
+	except Exception as e:
+		print(f"Error: {e}")
+
+
+if __name__ == "__main__":
+    main()
+
