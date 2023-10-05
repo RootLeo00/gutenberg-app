@@ -94,7 +94,9 @@ def write_to_file(file_path, content):
     except Exception as e:
         print(f"Error: {e}")
 
-def main():
+import sys
+
+def debug():
     root = RadixNode()
     # Load the cache-file and build the radix tree with token indices
     cache_file = open("../input/book-about-babylone.txt", "r").read().split()
@@ -122,6 +124,34 @@ def main():
     #write on ouput file
     write_to_file("../output/output_radixtree.txt", " ".join(colored_words))
 
+
+def main():
+    print("---------RADIXTREE SEARCH with args: ", sys.argv[1:], "-----------")
+    filename=sys.argv[1]
+    pattern=sys.argv[2]
+    try:
+        root = RadixNode()
+
+        cache_file = open(filename, "r").read().split()
+
+        for index, token in enumerate(cache_file):
+            root.insert_token(token, index)
+
+        # Split the regular expression into components (you may need a proper regex parser)
+        components = pattern.split(".*")
+
+        # Search for each component and accumulate the matching indices
+        matching_indices = []
+        for component in components:
+            component_indices = root.search_tokens(component)
+            matching_indices.extend(component_indices)
+
+        # Print the matched indices
+        colored_words = color_matched_words(cache_file, matching_indices)
+        print(" ".join(colored_words))
+        
+    except Exception as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
     main()
