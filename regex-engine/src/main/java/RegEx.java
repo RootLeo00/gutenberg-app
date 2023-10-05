@@ -16,12 +16,6 @@ public class RegEx {
 
   //FROM REGEX TO SYNTAX TREE
   public RegExTree parse() throws Exception {
-    //BEGIN DEBUG: set conditionnal to true for debug example
-    if (false) throw new Exception();
-    RegExTree example = exampleAhoUllman();
-    if (false) return example;
-    //END DEBUG
-
     ArrayList<RegExTree> result = new ArrayList<RegExTree>();
     for (int i=0;i<regEx.length();i++) result.add(new RegExTree(charToRoot(regEx.charAt(i)),new ArrayList<RegExTree>()));
     
@@ -30,6 +24,7 @@ public class RegEx {
   private static int charToRoot(char c) {
     if (c=='.') return RegExTokenType.DOT.getValue();
     if (c=='*') return RegExTokenType.STAR.getValue();
+    if (c=='+') return RegExTokenType.PLUS.getValue();
     if (c=='|') return RegExTokenType.ALTERN.getValue();
     if (c=='(') return RegExTokenType.PARENTHESEOUVRANT.getValue();
     if (c==')') return RegExTokenType.PARENTHESEFERMANT.getValue();
@@ -38,6 +33,7 @@ public class RegEx {
   private RegExTree parse(ArrayList<RegExTree> result) throws Exception {
     while (containParenthese(result)) result=processParenthese(result);
     while (containEtoile(result)) result=processEtoile(result);
+    while (containPlus(result)) result=processPlus(result);
     while (containConcat(result)) result=processConcat(result);
     while (containAltern(result)) result=processAltern(result);
 
@@ -117,6 +113,29 @@ public class RegEx {
     }
     return result;
   }
+
+  private boolean containPlus(ArrayList<RegExTree> trees) {
+    for (RegExTree t: trees) if (t.root==RegExTokenType.PLUS.getValue() && t.subTrees.isEmpty()) return true;
+    return false;
+  }
+  private ArrayList<RegExTree> processPlus(ArrayList<RegExTree> trees) throws Exception {
+    ArrayList<RegExTree> result = new ArrayList<RegExTree>();
+    boolean found = false;
+    for (RegExTree t: trees) {
+      if (!found && t.root==RegExTokenType.PLUS.getValue() && t.subTrees.isEmpty()) {
+        if (result.isEmpty()) throw new Exception();
+        found = true;
+        RegExTree last = result.remove(result.size()-1);
+        ArrayList<RegExTree> subTrees = new ArrayList<RegExTree>();
+        subTrees.add(last);
+        result.add(new RegExTree(RegExTokenType.PLUS.getValue(), subTrees));
+      } else {
+        result.add(t);
+      }
+    }
+    return result;
+  }
+
   private boolean containConcat(ArrayList<RegExTree> trees) {
     boolean firstFound = false;
     for (RegExTree t: trees) {
@@ -192,22 +211,5 @@ public class RegEx {
     return new RegExTree(tree.root, subTrees);
   }
   
-  //EXAMPLE
-  // --> RegEx from Aho-Ullman book Chap.10 Example 10.25
-  private RegExTree exampleAhoUllman() {
-    RegExTree a = new RegExTree((int)'a', new ArrayList<RegExTree>());
-    RegExTree b = new RegExTree((int)'b', new ArrayList<RegExTree>());
-    RegExTree c = new RegExTree((int)'c', new ArrayList<RegExTree>());
-    ArrayList<RegExTree> subTrees = new ArrayList<RegExTree>();
-    subTrees.add(c);
-    RegExTree cEtoile = new RegExTree(RegExTokenType.STAR.getValue(), subTrees);
-    subTrees = new ArrayList<RegExTree>();
-    subTrees.add(b);
-    subTrees.add(cEtoile);
-    RegExTree dotBCEtoile = new RegExTree(RegExTokenType.CONCAT.getValue(), subTrees);
-    subTrees = new ArrayList<RegExTree>();
-    subTrees.add(a);
-    subTrees.add(dotBCEtoile);
-    return new RegExTree(RegExTokenType.ALTERN.getValue(), subTrees);
-  }
+
 }

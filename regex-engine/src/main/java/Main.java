@@ -1,9 +1,13 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] arg) {
         System.out.println("Welcome to RegEx Automa");
+
         //REGEX
         RegEx regEx;
         if (arg.length!=0) {
@@ -72,6 +76,36 @@ public class Main {
             System.out.println("  >> ...");
             System.out.println("  >> DFA completed.");
 
+            System.out.println("  >> Converting to DFA...");
+            System.out.print("  >> Please enter a file name: ");
+            //check scanner next
+            String filename = null;
+            Scanner scanner = new Scanner(System.in);
+            if(!scanner.hasNext()) {
+                System.err.println("  >> ERROR: empty string name.");
+                return;
+            }
+            else{
+                filename = scanner.next();
+                // open filename
+                File file = new File(filename);
+                if(!file.exists()) {
+                    System.err.println("  >> ERROR: file not found.");
+                    return;
+                }
+                else{
+                   // read file
+                    try {
+                        BufferedReader br = new BufferedReader(new FileReader(file));
+                        String st;
+                        while ((st = br.readLine()) != null) {
+                            System.out.println(dfa.egrepPrintMatchWords(st));
+                        }
+                    } catch (Exception e) {
+                        System.err.println("  >> ERROR: file not found.");
+                    }
+                }
+            }
         }
         System.out.println("Author @RootLeo.");
         System.out.println("Code available at: https://github.com/RootLeo00/gutenberg-app/tree/master/regex-engine");

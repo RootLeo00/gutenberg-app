@@ -88,6 +88,23 @@ public class RegExToNFAConverter {
         return new NDFA(startState, acceptState);
     }
 
+    private static NDFA plusOperation(NDFA r1) {
+        //We add to the automaton for R1 a new start and accepting state.
+        NFAState startState = new NFAState(stateIdCounter++, false, true);
+        NFAState acceptState = new NFAState(stateIdCounter++, true, false);
+        //The start state has an e-transition to the accepting state and to the start state of the automaton for R1.
+        //epsilonTransition(startState, acceptState); //the only difference with star operation: we don't add the transition to the accept state, because we want to force at least one repetition
+        epsilonTransition(startState, r1.getStartState());
+        //The accepting state of the automaton for R1 is given an e-transition back to its start state, and one to the accepting state of the automaton for R1.
+        epsilonTransition(r1.getAcceptState(), r1.getStartState());
+        epsilonTransition(r1.getAcceptState(), acceptState);
+        // Remove old start/accept state
+        r1.getAcceptState().setAccept(false);
+        r1.getStartState().setStart(false);
+        return new NDFA(startState, acceptState);
+    }
+
+
     private NDFA symbolOperation(RegExTree regexTree) {
         //System.out.println("symbolOperation with symbol "+regexTree.rootToString().charAt(0)+"\n");
         //we have to create a new start and accept state and connect them with x-transition
@@ -108,6 +125,8 @@ public class RegExToNFAConverter {
             return alternationOperation(r1, r2);
         } else if (regexTree.root == RegExTokenType.STAR.getValue()) {
             return starOperation(r1);
+        } else if (regexTree.root == RegExTokenType.PLUS.getValue()) {
+            return plusOperation(r1);
         } else {
             return symbolOperation(regexTree);
         }

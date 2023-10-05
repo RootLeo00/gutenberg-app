@@ -1,11 +1,43 @@
 import java.util.*;
 
 public class DFA {
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_RESET = "\u001B[0m"; 
     private List<DFAState> table;
 
     public DFA() {
         this.table = new ArrayList<>();
     }
+
+    public String egrepPrintMatchWords(String input){
+        DFAState currentState = getStartingState();
+        StringBuilder sb = new StringBuilder();
+        StringBuilder analyzedString = new StringBuilder();
+
+        // walk through the table
+        for(int i=0; i<input.length(); i++){
+            char c = input.charAt(i);
+            if(currentState.getTransitions().containsKey(c)){
+                currentState = getDFAStatebyId(currentState.getTransitions().get(c));
+                //search for a path that goes to an accepting state
+                if(currentState.isAcceptingState()){
+                    sb.append(ANSI_RED).append(analyzedString).append(input.charAt(i)).append(ANSI_RESET);
+                    analyzedString = new StringBuilder();
+                }else{
+                    analyzedString.append(input.charAt(i));
+                }
+            }else{
+                // if the current state doesn't have a transition for the current char
+                // we have to go back to the starting state
+                currentState = getStartingState();
+                analyzedString = new StringBuilder();
+                sb.append(analyzedString).append(input.charAt(i));
+            }
+        }
+        return sb.toString();
+
+    }
+
 
     public void addState(Set<Integer> state, Map<Character, Set<Integer>> transitions, boolean isStartingState, boolean isAcceptingState) {
         DFAState dfaState = new DFAState(state, transitions, isStartingState, isAcceptingState);
