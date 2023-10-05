@@ -128,8 +128,7 @@ def main():
 	filename=sys.argv[1]
 	pattern=sys.argv[2]
 	try:
-		txt = open(filename, "r").read()
-		lines=[line for line in txt.split("\n")]
+		lines = open(filename, "r").read().split("\n")
 
 		lps=computeLPSArray(pattern, len(pattern))
 		lps=computeCarryOverArray(pattern, len(pattern), lps)
