@@ -1,7 +1,7 @@
 import java.util.*;
 
-public class NDFAtoDFAConverter {
-    public DFA convert(NDFA ndfa) {
+public class NFAtoDFAConverter {
+    public DFA convert(NFA ndfa) {
         DFA dfa = new DFA();
         Set<Set<NFAState>> visited = new HashSet<>();
         Queue<Set<NFAState>> queue = new LinkedList<>();
@@ -44,7 +44,7 @@ public class NDFAtoDFAConverter {
         return dfa;
     }
 
-    public void convertState(DFA dfa, NDFA ndfa, Set<NFAState> currentStateSet, Set<Set<NFAState>> visited) {
+    public void convertState(DFA dfa, NFA ndfa, Set<NFAState> currentStateSet, Set<Set<NFAState>> visited) {
         // Check if the state has already been visited
         if (visited.contains(currentStateSet)) {
             return;

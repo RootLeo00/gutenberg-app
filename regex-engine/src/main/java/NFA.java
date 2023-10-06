@@ -1,11 +1,11 @@
 import java.util.*;
 
-public class NDFA {
+public class NFA {
     NFAState startState;
     NFAState acceptState; //or "final state"
 
     private static int nextStateId = 0;
-    public NDFA(NFAState startState, NFAState acceptState) {
+    public NFA(NFAState startState, NFAState acceptState) {
         this.startState = startState;
         this.acceptState = acceptState;
     }
@@ -72,7 +72,7 @@ public class NDFA {
         return sb.toString();
     }
 
-    public NDFA rename(NDFA ndfa) {
+    public NFA rename(NFA ndfa) {
         Set<NFAState> visited = new HashSet<>();
         renameStates(ndfa.startState, visited);
         return ndfa;

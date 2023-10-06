@@ -3,24 +3,19 @@ import java.util.Map;
 public class RegExToNFAConverter {
     private static int stateIdCounter = 0;
 
-    private NDFA right_ndfa;
-    private NDFA left_ndfa;
+    private NFA right_ndfa;
+    private NFA left_ndfa;
 
-    public NDFA convert(RegExTree regexTree) {
+    public NFA convert(RegExTree regexTree) {
         return convertLeavesFromLastToRoot(regexTree, left_ndfa, right_ndfa);
     }
 
 
-    private NDFA convertLeavesFromLastToRoot(RegExTree regexTree, NDFA left_ndfa, NDFA right_ndfa) {
-        if (regexTree == null) return null; //TODO throw exception
-        /*System.out.print(regexTree.toString() + " ");
-        System.out.print(regexTree.rootToString()+ " ");
-        System.out.print(regexTree.subTrees.size() + "\n");*/
+    private NFA convertLeavesFromLastToRoot(RegExTree regexTree, NFA left_ndfa, NFA right_ndfa) {
+        if (regexTree == null) return null;
 
         // Check if it's a leaf node (no children)
         if (regexTree.subTrees.isEmpty()) {
-            //System.out.print("leaf: "+ regexTree.toString() + " ");
-            //convertSubtree(regexTree, this.startState, this.acceptState);
             return symbolOperation(regexTree);
         }
         // Traverse the right subtree (last leaf)
@@ -42,8 +37,7 @@ public class RegExToNFAConverter {
         fromState.addTransition(symbol, toState);
     }
 
-    private NDFA alternationOperation(NDFA r1, NDFA r2) {
-        //System.out.println("alternationOperation on " + r1 + " and " + r2 + "\n");
+    private NFA alternationOperation(NFA r1, NFA r2) {
         // taking the automata for R1 and R2 and adding two new states, one the start
         //state and the other the accepting state.
         NFAState newStartState = new NFAState(stateIdCounter++, false, true);
@@ -59,20 +53,19 @@ public class RegExToNFAConverter {
         r2.getAcceptState().setAccept(false);
         r1.getStartState().setStart(false);
         r2.getStartState().setStart(false);
-        return new NDFA(newStartState, newAcceptState);
+        return new NFA(newStartState, newAcceptState);
     }
 
-    private static NDFA concatenationOperation(NDFA r1, NDFA r2) {
-        //System.out.println("concatenationOperation on " + r1.toString() + " and " + r2.toString() + "\n");
+    private static NFA concatenationOperation(NFA r1, NFA r2) {
         // We add an e-transition from the accepting state of the automaton for R1 to the start state of the automaton for R2.
         epsilonTransition(r1.getAcceptState(), r2.getStartState());
         // Remove old start/accept state
         r1.getAcceptState().setAccept(false);
         r2.getStartState().setStart(false);
-        return new NDFA(r1.getStartState(), r2.getAcceptState());
+        return new NFA(r1.getStartState(), r2.getAcceptState());
     }
 
-    private static NDFA starOperation(NDFA r1) {
+    private static NFA starOperation(NFA r1) {
         //We add to the automaton for R1 a new start and accepting state.
         NFAState startState = new NFAState(stateIdCounter++, false, true);
         NFAState acceptState = new NFAState(stateIdCounter++, true, false);
@@ -85,10 +78,10 @@ public class RegExToNFAConverter {
         // Remove old start/accept state
         r1.getAcceptState().setAccept(false);
         r1.getStartState().setStart(false);
-        return new NDFA(startState, acceptState);
+        return new NFA(startState, acceptState);
     }
 
-    private static NDFA plusOperation(NDFA r1) {
+    private static NFA plusOperation(NFA r1) {
         //We add to the automaton for R1 a new start and accepting state.
         NFAState startState = new NFAState(stateIdCounter++, false, true);
         NFAState acceptState = new NFAState(stateIdCounter++, true, false);
@@ -101,24 +94,21 @@ public class RegExToNFAConverter {
         // Remove old start/accept state
         r1.getAcceptState().setAccept(false);
         r1.getStartState().setStart(false);
-        return new NDFA(startState, acceptState);
+        return new NFA(startState, acceptState);
     }
 
 
-    private NDFA symbolOperation(RegExTree regexTree) {
-        //System.out.println("symbolOperation with symbol "+regexTree.rootToString().charAt(0)+"\n");
+    private NFA symbolOperation(RegExTree regexTree) {
         //we have to create a new start and accept state and connect them with x-transition
         NFAState startState = new NFAState(stateIdCounter++, false, true);
         NFAState acceptState = new NFAState(stateIdCounter++, true,     false);
         // start state and accept state get connected by x-transition (where x is the symbol in input)
         transition(startState, regexTree.rootToString().charAt(0), acceptState);
-        return new NDFA(startState, acceptState);
+        return new NFA(startState, acceptState);
     }
 
 
-    private NDFA convertSubtree(RegExTree regexTree, NDFA r1, NDFA r2) {
-        //print the root
-        //System.out.print("\nroot given: "+ regexTree.root + " ");
+    private NFA convertSubtree(RegExTree regexTree, NFA r1, NFA r2) {
         if (regexTree.root == RegExTokenType.CONCAT.getValue()) {
             return concatenationOperation(r1, r2);
         } else if (regexTree.root == RegExTokenType.ALTERN.getValue()) {

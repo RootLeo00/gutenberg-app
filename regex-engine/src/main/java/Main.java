@@ -1,12 +1,13 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] arg) {
         System.out.println("Welcome to RegEx Automa");
+        long start=0;
+        long time_elapsed=0;
 
         //REGEX
         RegEx regEx;
@@ -45,27 +46,27 @@ public class Main {
         System.out.println("  >> ...");
         System.out.println("  >> Parsing completed.");
 
-        NDFA ndfa = null;
+        NFA ndfa = null;
         if(regexTree != null) {
-            System.out.println("  >> Converting to NDFA...");
+            System.out.println("  >> Converting to NFA...");
             RegExToNFAConverter converter = new RegExToNFAConverter();
             try{
                 ndfa = converter.convert(regexTree);
-                System.out.println("  >> NDFA: \n"+ndfa.toString()+"\n");
+                System.out.println("  >> NFA: \n"+ndfa.toString()+"\n");
 
                 ndfa = ndfa.rename(ndfa);
-                System.out.println("  >> RENAMED NDFA: \n"+ndfa.toString()+"\n");
+                System.out.println("  >> RENAMED NFA: \n"+ndfa.toString()+"\n");
 
             } catch (Exception e) {
                 System.err.println("  >> ERROR: syntax error for regEx \""+ regEx.getRegEx()+"\".");
             }
             System.out.println("  >> ...");
-            System.out.println("  >> NDFA completed.");
+            System.out.println("  >> NFA completed.");
 
         }
         if(ndfa!=null){
             System.out.println("  >> Converting to DFA...");
-            NDFAtoDFAConverter converter = new NDFAtoDFAConverter();
+            NFAtoDFAConverter converter = new NFAtoDFAConverter();
             DFA dfa = converter.convert(ndfa);
             System.out.println("  >> DFA: \n"+dfa.toString()+"\n");
             System.out.println("  >> Minimize DFA...");
@@ -98,9 +99,11 @@ public class Main {
                     try {
                         BufferedReader br = new BufferedReader(new FileReader(file));
                         String st;
+                        start = System.currentTimeMillis();
                         while ((st = br.readLine()) != null) {
                             System.out.println(dfa.egrepPrintMatchWords(st));
                         }
+                        time_elapsed += System.currentTimeMillis()-start;
                     } catch (Exception e) {
                         System.err.println("  >> ERROR: file not found.");
                     }
