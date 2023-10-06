@@ -98,7 +98,7 @@ public class Test {
         long time_elapsed = 0;
 
         // test with different number of characters in the text
-        for (int pattern_len = 5; pattern_len <= 10; pattern_len += 10) {
+        for (int pattern_len = 5; pattern_len <= 1000; pattern_len += 10) {
             //take the first pattern_len character of the file
             String r=readFirstNCharactersFromFile("output/pattern_to_process.txt", pattern_len);
 
