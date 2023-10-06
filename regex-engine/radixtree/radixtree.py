@@ -135,13 +135,21 @@ def test():
 
     try:
         txt = open(filename, "r").read()
-        for i in range(100, 100000):
+        for i in range(100, 100000, 1000):
             print("test with ncharacters: ", i)
             df = testtiming(txt[:i], pattern, df)
 
         print(df)
         #store df in a pickle file
-        df.to_pickle("../output/output_radixtree.pkl")
+        df.to_pickle("../output/output_radixtree_textlength.pkl")
+        #test with different pattern length
+        df = pd.DataFrame(columns=['ncharacters', 'pattern_len', 'time_elapsed'])
+        pattern=txt[:10000]
+        print("pattern: ", len(pattern))
+        for i in range(5, 5000, 10): #step 10
+            print("test with pattern length: ", i)
+            df = testtiming(txt[:10000], pattern[:i], df)
+        df.to_pickle("../output/output_radixtree_patternlength.pkl")
         
     except Exception as e:
         print(f"Error: {e}")
@@ -164,8 +172,8 @@ def testtiming(cache_file, pattern, df):
         matching_indices.extend(component_indices)
 
     # Print the matched indices
-    colored_words = color_matched_words(cache_file, matching_indices)
-    print("".join(colored_words))
+    # colored_words = color_matched_words(cache_file, matching_indices)
+    # print("".join(colored_words))
     time_elapsed = time.time() - start
     
 
