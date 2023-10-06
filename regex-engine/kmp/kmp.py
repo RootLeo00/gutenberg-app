@@ -122,25 +122,67 @@ def debug():
     # Print the matched indices
 	print("Matching indices:", matching_indices)
 
+import time
+import pandas as pd
+def test(filename, pattern):
+	print("---------[TEST] KMP SEARCH with args: ", sys.argv[1:], "-----------")
+
+	#create pandas table to store the results with columns: number of characters in filename, pattern, time_elapsed
+	df = pd.DataFrame(columns=['ncharacters', 'pattern_len', 'time_elapsed'])
+
+	try:
+		txt = open(filename, "r").read()
+		for i in range(100, 100000):
+			print("test with ncharacters: ", i)
+			df = testtiming(txt[:i], pattern, df)
+
+		print(df)
+		#store df in a pickle file
+		df.to_pickle("../output/output_kmp.pkl")
+	except Exception as e:
+		print(f"Error: {e}")
+
+def testtiming(txt, pattern, df):
+	lines = txt.split("\n")
+	#iterate over each line of lines and count the number of characters in each line
+	ncharacters= len(txt)
+	start =time.time()
+	lps=computeLPSArray(pattern, len(pattern))
+	lps=computeCarryOverArray(pattern, len(pattern), lps)
+	time_elapsed = time.time() - start
+	for l in lines:
+		start =time.time()
+		matched_index= KMPSearch(pattern, l)
+		time_elapsed += time.time() - start
+		# print_color_matched_words(l, matched_index, len(pattern))
+
+	newdf= pd.DataFrame([[ncharacters, len(pattern), time_elapsed]], columns=['ncharacters', 'pattern_len', 'time_elapsed'])
+	df = pd.concat([df,newdf], ignore_index=True)
+	return df
 
 def main():
 	print("---------KMP SEARCH with args: ", sys.argv[1:], "-----------")
 	filename=sys.argv[1]
 	pattern=sys.argv[2]
+	
 	try:
 		lines = open(filename, "r").read().split("\n")
-
 		lps=computeLPSArray(pattern, len(pattern))
 		lps=computeCarryOverArray(pattern, len(pattern), lps)
-
 		for l in lines:
 			matched_index= KMPSearch(pattern, l)
 			print_color_matched_words(l, matched_index, len(pattern))
-
+	
 	except Exception as e:
 		print(f"Error: {e}")
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+	filename=sys.argv[1]
+	pattern=sys.argv[2]
+	test(filename=filename, pattern=pattern)
+
+	
+
 
