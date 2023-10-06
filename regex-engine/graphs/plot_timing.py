@@ -12,7 +12,13 @@ def plot_timing(file, x, y):
     print("plotting: ", file)
     i=0
     for f in file:
-        listdf.append(pd.read_pickle(f))
+        #if f ends with pkl, read pickle
+        if f.split(".")[1] == "pkl":
+            print("reading pickle: ", f.split(".")[1])
+            listdf.append(pd.read_pickle(f))
+        if f.split(".")[1] == "csv":
+            listdf.append(pd.read_csv(f))
+        # listdf.append(pd.read_pickle(f))
         print(listdf[i])
 
         #retrieve engine name and pattern
@@ -37,12 +43,15 @@ def plot_timing(file, x, y):
     plt.show()
 
 
-import sys
 if __name__ == "__main__":
     # main()
-	# filename=sys.argv[1]
-	# pattern=sys.argv[2]
-    file=["../output/output_radixtree_patternlength.pkl","../output/output_kmp_patternlength.pkl"]
+    file=[ "/home/leo/github/gutenberg-app/regex-engine/output/output_automa_patternlength.csv",
+          "/home/leo/github/gutenberg-app/regex-engine/output/output_kmp_patternlength.pkl",
+        "/home/leo/github/gutenberg-app/regex-engine/output/output_radixtree_patternlength.pkl",
+          ]
+    
     plot_timing(file,  "pattern_len","time_elapsed")
-    file=["../output/output_radixtree_textlength.pkl","../output/output_kmp_textlength.pkl"]
+    file=["/home/leo/github/gutenberg-app/regex-engine/output/output_automa_textlength.csv",
+          "/home/leo/github/gutenberg-app/regex-engine/output/output_radixtree_textlength.pkl",
+          "/home/leo/github/gutenberg-app/regex-engine/output/output_kmp_textlength.pkl"]
     plot_timing( file, "ncharacters", "time_elapsed")
