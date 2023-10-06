@@ -2,17 +2,13 @@ from colorama import Fore, Style
 import sys
 
 # Python program for KMP Algorithm
-def KMPSearch(pattern, txt):
+def KMPSearch(pattern, txt, lps):
 	M = len(pattern)
 	N = len(txt)
 	matching_indexes = []
 
 	
 	j = 0 # index for pattern[]
-
-	# Preprocess the pattern (calculate lps[] array)
-	lps=computeLPSArray(pattern, M)
-	lps=computeCarryOverArray(pattern, M, lps)
 
 	i = 0 # index for txt[]
 	while i < N:
@@ -103,16 +99,15 @@ def debug():
 	lines=[line for line in txt.split("\n")]
 	pattern = "Gutenberg"
 
-	lps=computeLPSArray(pattern, len(pattern))
-	print("lps", lps)
-	lps=computeCarryOverArray(pattern, len(pattern), lps)
-	print("carryover", lps)
-
 	matching_indices=[]
 	try:
 		file= open("../output/output_kmp.txt", "w")
 		for l in lines:
-			matched_index= KMPSearch(pattern, l)
+			lps=computeLPSArray(pattern, len(pattern))
+			print("lps", lps)
+			lps=computeCarryOverArray(pattern, len(pattern), lps)
+			print("carryover", lps)
+			matched_index= KMPSearch(pattern, l, lps)
 			# write on ouput file
 			file.write(print_color_matched_words(l, matched_index, len(pattern)))
 			matching_indices+=matched_index
@@ -131,28 +126,42 @@ def test(filename, pattern):
 	df = pd.DataFrame(columns=['ncharacters', 'pattern_len', 'time_elapsed'])
 
 	try:
+		# test with different number of characters
 		txt = open(filename, "r").read()
-		for i in range(100, 100000):
+
+		for i in range(1000, 100000 ,1000): #step 1000
 			print("test with ncharacters: ", i)
 			df = testtiming(txt[:i], pattern, df)
 
 		print(df)
-		#store df in a pickle file
-		df.to_pickle("../output/output_kmp.pkl")
+		df.to_pickle("../output/output_kmp_textlength.pkl")
+
+		#test with different pattern length
+		df = pd.DataFrame(columns=['ncharacters', 'pattern_len', 'time_elapsed'])
+		pattern=txt[:10000]
+		print("pattern: ", len(pattern))
+		for i in range(5, 5000, 10): 
+			print("test with pattern length: ", i)
+			df = testtiming(txt[:10000], pattern[:i], df)
+		df.to_pickle("../output/output_kmp_patternlength.pkl")
+		print(df)
 	except Exception as e:
 		print(f"Error: {e}")
 
 def testtiming(txt, pattern, df):
 	lines = txt.split("\n")
+	time_elapsed = 0.0
 	#iterate over each line of lines and count the number of characters in each line
 	ncharacters= len(txt)
-	start =time.time()
+	# start =time.time()
+	# Preprocess the pattern (calculate lps[] array)
 	lps=computeLPSArray(pattern, len(pattern))
 	lps=computeCarryOverArray(pattern, len(pattern), lps)
-	time_elapsed = time.time() - start
+	# time_elapsed = time.time() - start
+
 	for l in lines:
 		start =time.time()
-		matched_index= KMPSearch(pattern, l)
+		matched_index= KMPSearch(pattern, l, lps)
 		time_elapsed += time.time() - start
 		# print_color_matched_words(l, matched_index, len(pattern))
 
